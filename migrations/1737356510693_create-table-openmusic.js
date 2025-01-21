@@ -5,7 +5,7 @@
  */
 exports.up = (pgm) => {
     // create album table
-    pgm.createTable('album',{
+    pgm.createTable('albums',{
         id: {type: 'VARCHAR(50)', primaryKey: true, notNull: true},
         name: {type: 'TEXT', notNull:true},
         year: {type: 'INTEGER', notNull:true},
@@ -19,7 +19,7 @@ exports.up = (pgm) => {
         perfromer: {type: 'TEXT', notNull:true},
         genre: {type: 'TEXT', notNull:true},
         duration: {type: 'INTEGER', notNull:false},
-        album_id: {type: 'VARCHAR(50)', notNull:false, references: '"album"', onDelete:'cascade'},
+        album_id: {type: 'VARCHAR(50)', notNull:false, references: '"albums"', onDelete:'cascade'},
     });
 
 };
@@ -31,5 +31,5 @@ exports.up = (pgm) => {
  */
 exports.down = (pgm) => {
     pgm.dropTable('songs');
-    pgm.dropTable('album');
+    pgm.dropTable('albums');
 };
