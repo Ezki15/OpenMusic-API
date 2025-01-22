@@ -1,15 +1,9 @@
+/* eslint-disable linebreak-style */
+/* eslint-disable camelcase */
 const mapDBToModelDetail = ({
-    id,title, year, genre, performer, duration, album_id
+  id, title, year, genre, performer, duration, album_id,
 }) => ({
-    title, year, genre, performer, duration, albumId: album_id
+  id, title, year, genre, performer, duration, albumId: album_id,
 });
 
-const mapDBToModelAll = (songs) => {
-    const listSongs = [];
-    songs.forEach((song) => {
-        const {id, title, performer} = book;
-        listSongs.push({id, title, performer});
-    });
-    return listSongs;
-}
-module.exports = {mapDBToModelDetail, mapDBToModelAll};
+module.exports = { mapDBToModelDetail };
