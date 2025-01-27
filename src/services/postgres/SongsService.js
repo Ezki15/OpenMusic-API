@@ -15,17 +15,24 @@ class SongsService {
 
   // songs service =====
   async addSong({
-    title, year, performer, genre, duration, albumId,
+    title, year, genre, performer, duration, albumId,
   }) {
-    const nanoidAlbum = nanoid(16);
-    const id = `song-${nanoidAlbum}`;
+    const nanoidSong = nanoid(16);
+    const id = `song-${nanoidSong}`;
     // proses memasukkan ke database
     const query = {
-      text: 'INSERT INTO albums VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id',
-      values: [id, title, year, performer, genre, duration, albumId],
+      text: 'INSERT INTO songs VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id',
+      values: [id, title, year, genre, performer, duration, albumId],
     };
 
     const result = await this._pool.query(query);
+
+    // debugging
+    console.log({
+      title, year, genre, performer, duration, albumId,
+    });
+    console.log(query);
+    console.log(result);
 
     if (!result.rows[0].id) {
       throw new InvariantError('Lagu gagal ditambahkan');
@@ -34,8 +41,19 @@ class SongsService {
     return result.rows[0].id;
   }
 
-  async getSongs() {
-    const result = await this._pool.query('SELECT id, title, performer FROM songs');
+  async getSongs(queryParams) {
+    if (!queryParams) {
+      const result = await this._pool.query('SELECT id, title, performer FROM songs');
+      return result.rows;
+    }
+
+    const { title } = queryParams;
+    const { performer } = queryParams;
+    const query = {
+      text: 'SELECT id, title, performer FROM songs WHERE title = $1 OR performer = $2',
+      values: [title, performer],
+    };
+    const result = await this._pool.query(query);
     return result.rows;
   }
 
@@ -57,7 +75,7 @@ class SongsService {
   }) {
     // proses query database
     const query = {
-      text: 'UPDATE songs SET title = $1, year = $2, genre: $3, performer: $4, duration: $5, albumId: $6 WHERE id = $7 RETURNING id',
+      text: 'UPDATE songs SET title = $1, year = $2, genre = $3, performer = $4, duration = $5, albumId = $6 WHERE id = $7 RETURNING id',
       values: [title, year, genre, performer, duration, albumId, id],
     };
     const result = await this._pool.query(query);

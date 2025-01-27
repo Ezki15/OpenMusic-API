@@ -44,6 +44,31 @@ class AlbumsService {
     return result.rows[0];
   }
 
+  // async getAlbumByAlbumId(albumId) {
+  //   const query = {
+  // eslint-disable-next-line max-len
+  //     text: 'SELECT A.id, A.name, A.year, S.id as songId, S.title as songTitle, S.performer as songPerformer FROM albums as A LEFT JOIN songs as A on A.id = S.albumId WHERE A.id = $1',
+  //     values: [albumId],
+  //   };
+
+  //   const result = await this._pool.query(query);
+
+  //   if (!result.rowsCount) {
+  //     throw new InvariantError('Gagal mendapatkan data album. Id tidak ditemukan');
+  //   }
+
+  //   return {
+  //     id: result.rows[0].id,
+  //     name: result.rows[0].name,
+  //     year: result.rows[0].year,
+  //     songs: result.rows.map((row) => ({
+  //       id: row.songId,
+  //       title: row.songTitle,
+  //       performer: row.songPerformer,
+  //     })),
+  //   };
+  // }
+
   async editAlbumById(id, { name, year }) {
     // proses query database
     const query = {
