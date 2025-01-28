@@ -27,13 +27,6 @@ class SongsService {
 
     const result = await this._pool.query(query);
 
-    // debugging
-    console.log({
-      title, year, genre, performer, duration, albumId,
-    });
-    console.log(query);
-    console.log(result);
-
     if (!result.rows[0].id) {
       throw new InvariantError('Lagu gagal ditambahkan');
     }
@@ -41,20 +34,32 @@ class SongsService {
     return result.rows[0].id;
   }
 
+  // eslint-disable-next-line consistent-return
   async getSongs(queryParams) {
-    if (!queryParams) {
+    if (Object.keys(queryParams).length === 0) {
       const result = await this._pool.query('SELECT id, title, performer FROM songs');
       return result.rows;
     }
 
-    const { title } = queryParams;
-    const { performer } = queryParams;
-    const query = {
-      text: 'SELECT id, title, performer FROM songs WHERE title = $1 OR performer = $2',
-      values: [title, performer],
-    };
-    const result = await this._pool.query(query);
-    return result.rows;
+    const { title, performer } = queryParams;
+    const listSongs = [];
+    if (title === undefined || performer === undefined) {
+      const query = {
+        text: 'SELECT id, title, performer FROM songs WHERE title ~* $1 OR performer ~* $2',
+        values: [title, performer],
+      };
+      const result = await this._pool.query(query);
+      listSongs.push(...result.rows);
+      return listSongs;
+    } if (title !== undefined && performer !== undefined) {
+      const query = {
+        text: 'SELECT id, title, performer FROM songs WHERE title ~* $1 AND performer ~* $2',
+        values: [title, performer],
+      };
+      const result = await this._pool.query(query);
+      listSongs.push(...result.rows);
+      return listSongs;
+    }
   }
 
   async getSongById(id) {
@@ -71,11 +76,11 @@ class SongsService {
   }
 
   async editSongById(id, {
-    title, year, genre, performer, duration, albumId,
+    title, year, genre, performer, duration = null, albumId = null,
   }) {
     // proses query database
     const query = {
-      text: 'UPDATE songs SET title = $1, year = $2, genre = $3, performer = $4, duration = $5, albumId = $6 WHERE id = $7 RETURNING id',
+      text: 'UPDATE songs SET title = $1, year = $2, genre = $3, performer = $4, duration = $5, "albumId" = $6 WHERE id = $7 RETURNING id',
       values: [title, year, genre, performer, duration, albumId, id],
     };
     const result = await this._pool.query(query);

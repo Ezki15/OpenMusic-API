@@ -27,13 +27,29 @@ class AlbumsHandler {
     return response;
   }
 
-  async getAlbumByIdHandler(request) {
+  async getAlbumByIdHandler(request, h) {
     const { id } = request.params;
     const album = await this._service.getAlbumById(id);
-    return {
+    const song = await this._service.getSongByAlbumId(id);
+
+    const response = h.response({
       status: 'success',
-      data: { album },
-    };
+      data: {
+        album: {
+          id: album.id,
+          name: album.name,
+          year: album.year,
+          songs: song.map((unit) => ({
+            id: unit.id,
+            title: unit.title,
+            performer: unit.performer,
+          })),
+        },
+      },
+    });
+
+    response.code(200);
+    return response;
   }
 
   async putAlbumByIdHandler(request) {
