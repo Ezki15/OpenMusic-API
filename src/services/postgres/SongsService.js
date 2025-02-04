@@ -36,6 +36,8 @@ class SongsService {
 
   // eslint-disable-next-line consistent-return
   async getSongs(queryParams) {
+    // Jika query parameter tidak ada
+    // maka akan mengembalikan full song
     if (Object.keys(queryParams).length === 0) {
       const result = await this._pool.query('SELECT id, title, performer FROM songs');
       return result.rows;
