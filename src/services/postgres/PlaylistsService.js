@@ -15,7 +15,7 @@ class PlaylistsService {
     const id = `playlist-${nanoid(16)}`;
 
     const query = {
-      text: 'INSERT INTO playlist VALUES($1, $2, $3) RETURNING id',
+      text: 'INSERT INTO playlists VALUES($1, $2, $3) RETURNING id',
       values: [id, name, owner],
     };
 
@@ -30,11 +30,11 @@ class PlaylistsService {
 
   async getPlaylists(owner) {
     const query = {
-      text: `SELECT playlists.id, plyalists.name, users.username
+      text: `SELECT playlists.id, playlists.name, users.username
             FROM playlists
             LEFT JOIN users
-            ON playlist.owner = users.id
-            WHERE playlist.owner = $1`,
+            ON playlists.owner = users.id
+            WHERE playlists.owner = $1`,
       values: [owner],
     };
 

@@ -67,7 +67,7 @@ const init = async () => {
     validate: (artifacts) => ({
       isValid: true,
       credentials: {
-        id: artifacts.decode.payload.id,
+        id: artifacts.decoded.payload.id,
       },
     }),
   });
@@ -130,7 +130,7 @@ const init = async () => {
   });
 
   await server.start();
-  console.log(`Server berjalana pada ${server.info.uri}`);
+  console.log(`Server berjalan pada ${server.info.uri}`);
 };
 
 init();
