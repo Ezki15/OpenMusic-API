@@ -20,12 +20,6 @@ exports.up = (pgm) => {
     },
   });
 
-  /*
-        Menambahkan constraint UNIQUE pada playlist_id dan song_id
-        untuk menghindari nilai duplikat
-    */
-  pgm.addConstraint('playlist_songs', 'unique_playlist_id_and_song_id', 'UNIQUE(playlist_id, song_id)');
-
   // Menambahkan constraint foreign key untuk playlist_id dan song_id
   pgm.addConstraint('playlist_songs', 'fk_playlist_songs.playlist_id_to_playlists_id', 'FOREIGN KEY(playlist_id) REFERENCES playlists(id) ON DELETE CASCADE');
   pgm.addConstraint('playlist_songs', 'fk_playlist_songs.song_id_to_songs_id', 'FOREIGN KEY(song_id) REFERENCES songs(id) ON DELETE CASCADE');
