@@ -40,7 +40,28 @@ class PlaylistsService {
     };
 
     const result = await this._pool.query(query);
+    if (!result.rowCount) {
+      throw new NotFoundError('Gagal mendapatkan data. Id tidak ditemukan');
+    }
     return result.rows;
+  }
+
+  async getPlaylistById(id) {
+    const query = {
+      text: `SELECT playlists.id, playlists.name, users.username
+              FROM playlists
+              LEFT JOIN users ON playlists.owner = users.id
+              WHERE playlists.id = $1`,
+      values: [id],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rows) {
+      throw new NotFoundError('Gagal mendapatkan data. Id tidak ');
+    }
+
+    return result.rows[0];
   }
 
   async deletePlaylistById(id) {
@@ -63,17 +84,14 @@ class PlaylistsService {
     await this.verifySong(songId);
 
     const query = {
-      text: 'INSERT INTO playlist_songs VALUES($1, $2, $3)',
+      text: 'INSERT INTO playlist_songs VALUES($1, $2, $3) RETURNING id',
       values: [id, playlistId, songId],
     };
 
-    console.log(query);
-
     const result = await this._pool.query(query);
-    console.log(result.rows);
 
     if (!result.rows.length) {
-      throw new InvariantError('Song gagal ditambahkan');
+      throw new InvariantError('Lagu gagal ditambahkan');
     }
   }
 

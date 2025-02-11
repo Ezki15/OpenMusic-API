@@ -53,7 +53,7 @@ class PlaylistsHandler {
     };
   }
 
-  async postSongsPlaylistHandler(request) {
+  async postSongsPlaylistHandler(request, h) {
     await this._validator.validateSongPlaylistPayload(request.payload);
     const { songId } = request.payload;
     const { id: playlistId } = request.params;
@@ -61,10 +61,12 @@ class PlaylistsHandler {
     await this._service.verifyPlaylistOwner(playlistId, credentialId);
     await this._service.addSongsPlaylist(songId, playlistId);
 
-    return {
+    const response = h.response({
       status: 'success',
       message: 'Lagu berhasil ditambahkan ke playlist',
-    };
+    });
+    response.code(201);
+    return response;
   }
 
   async getSongsPlaylistHandler(request) {
@@ -73,7 +75,7 @@ class PlaylistsHandler {
 
     await this._service.verifyPlaylistOwner(playlistId, credentialId);
 
-    const playlist = await this._service.getPlaylists(credentialId);
+    const playlist = await this._service.getPlaylistById(playlistId); // Need new function
     const songs = await this._service.getSongsPlaylistById(playlistId);
 
     return {
