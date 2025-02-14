@@ -43,9 +43,9 @@ class PlaylistsService {
     };
 
     const result = await this._pool.query(query);
-    if (!result.rowCount) {
-      throw new NotFoundError('Gagal mendapatkan data. Id tidak ditemukan');
-    }
+    // if (!result.rowCount) {
+    //   throw new NotFoundError('Gagal mendapatkan data. Id tidak ditemukan');
+    // }
     return result.rows;
   }
 
@@ -195,18 +195,14 @@ class PlaylistsService {
     const query = {
       text: `SELECT users.username, songs.title, playlist_song_activities.action, playlist_song_activities.time
               FROM playlist_song_activities
-              LEFT JOIN playlists ON playlist_song_activities.playlist_id = playlists.id
-              LEFT JOIN users ON playlists.owner = users.id
-              LEFT JOIN playlist_songs ON playlists.id = playlist_songs.playlist_id
-              LEFT JOIN songs ON playlist_songs.song_id = songs.id
-              WHERE playlist_song_activities.playlist_id = $1`,
+              LEFT JOIN users ON playlist_song_activities.user_id = users.id
+              LEFT JOIN songs ON playlist_song_activities.song_id = songs.id
+              WHERE playlist_song_activities.playlist_id = $1
+              ORDER BY playlist_song_activities.time ASC`,
       values: [playlistId],
     };
-    console.log(query);
 
     const result = await this._pool.query(query);
-    console.log('==================');
-    console.log(result.rows);
 
     if (!result.rowCount) {
       throw new NotFoundError('Gagal mendapatkan aktivitas playlist. Id tidak ditemukan');

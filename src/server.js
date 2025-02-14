@@ -127,7 +127,7 @@ const init = async () => {
   ]);
 
   server.ext('onPreResponse', (request, h) => {
-    // mendapatkan kontekx response dari request
+    // mendapatkan konteks response dari request
     const { response } = request;
 
     // penanganan client error secara internal
