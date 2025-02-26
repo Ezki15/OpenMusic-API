@@ -39,6 +39,7 @@ class AlbumsHandler {
           id: album.id,
           name: album.name,
           year: album.year,
+          coverUrl: album.coverUrl,
           songs: song.map((unit) => ({
             id: unit.id,
             title: unit.title,
