@@ -2,7 +2,6 @@
 /* eslint-disable no-underscore-dangle */
 const fs = require('fs');
 const { Pool } = require('pg');
-const NotFoundError = require('../../exceptions/NotFoundError');
 
 class StorageService {
   constructor(folder) {
@@ -14,7 +13,7 @@ class StorageService {
     }
   }
 
-  writefile(file, meta) {
+  writeFile(file, meta) {
     const filename = +new Date() + meta.filename;
     const path = `${this._folder}/${filename}`;
 
@@ -29,16 +28,13 @@ class StorageService {
     });
   }
 
-  addCoverToAlbum(albumId, urlCover) {
+  async addCoverToAlbum(urlCover, albumId) {
     const query = {
-      text: 'UPDATE albums SET cover = $1 WHERE id = $2 RETURNING id',
+      text: 'UPDATE albums SET "coverUrl" = $1 WHERE id = $2',
       values: [urlCover, albumId],
     };
 
-    const result = this._pool.query(query);
-    if (!result.rowCount) {
-      throw new NotFoundError('Album tidak ditemukan');
-    }
+    await this._pool.query(query);
   }
 }
 
