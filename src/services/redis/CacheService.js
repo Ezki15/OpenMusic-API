@@ -1,4 +1,3 @@
-/* eslint-disable linebreak-style */
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable no-underscore-dangle */
 const redis = require('redis');
@@ -20,7 +19,7 @@ class CacheService {
 
   async set(key, value, expirationInSecond = 1800) {
     await this._client.set(key, value, {
-      Ex: expirationInSecond,
+      EX: expirationInSecond,
     });
   }
 

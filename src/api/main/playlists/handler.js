@@ -1,5 +1,3 @@
-/* eslint-disable linebreak-style */
-/* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
 // eslint-disable-next-line import/no-extraneous-dependencies
 const autoBin = require('auto-bind');
@@ -30,9 +28,21 @@ class PlaylistsHandler {
     return response;
   }
 
-  async getPlaylistsHandler(request) {
+  async getPlaylistsHandler(request, h) {
     const { id: credentialId } = request.auth.credentials;
     const playlists = await this._service.getPlaylists(credentialId);
+
+    if (playlists.key) {
+      const cachePlaylists = playlists.cache;
+      const response = h.response({
+        status: 'success',
+        data: {
+          playlists: cachePlaylists,
+        },
+      }).header('X-Data-Source', 'cache');
+      response.code(200);
+      return response;
+    }
     return {
       status: 'success',
       data: {
@@ -72,7 +82,7 @@ class PlaylistsHandler {
     return response;
   }
 
-  async getSongsPlaylistHandler(request) {
+  async getSongsPlaylistHandler(request, h) {
     const { id: playlistId } = request.params;
     const { id: credentialId } = request.auth.credentials;
 
@@ -80,6 +90,22 @@ class PlaylistsHandler {
 
     const playlist = await this._service.getPlaylistById(playlistId);
     const songs = await this._service.getSongsPlaylistById(playlistId);
+
+    if (songs.key) {
+      const cacheSongs = songs.cache;
+      const cachePlaylist = playlist.cache;
+      const response = h.response({
+        status: 'success',
+        data: {
+          playlist: {
+            ...cachePlaylist,
+            songs: cacheSongs,
+          },
+        },
+      }).header('X-Data-Source', 'cache');
+      response.code(200);
+      return response;
+    }
 
     return {
       status: 'success',
@@ -112,12 +138,25 @@ class PlaylistsHandler {
   }
 
   // mendapatkan aktivitas playlist
-  async getPlaylistActivitiesHandler(request) {
+  async getPlaylistActivitiesHandler(request, h) {
     const { id: playlistId } = request.params;
     const { id: credentialId } = request.auth.credentials;
     await this._service.verifyPlaylistOwner(playlistId, credentialId);
 
     const activitiesResult = await this._service.getPlaylistActivites(playlistId);
+
+    if (activitiesResult.key) {
+      const cacheActivities = activitiesResult.cache;
+      const response = h.response({
+        status: 'success',
+        data: {
+          playlistId,
+          activities: cacheActivities,
+        },
+      }).header('X-Data-Source', 'cache');
+      response.code(200);
+      return response;
+    }
 
     return {
       status: 'success',

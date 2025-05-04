@@ -1,5 +1,3 @@
-/* eslint-disable linebreak-style */
-/* eslint-disable no-sparse-arrays */
 /* eslint-disable no-underscore-dangle */
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
@@ -35,27 +33,40 @@ class AlbumsService {
   async getAlbumById(id) {
     // proses query database
     // mendapatkan data album berdasarkan id
-    const queryAlbum = {
-      text: 'SELECT * FROM albums WHERE id = $1',
-      values: [id],
-    };
-    const resultAlbum = await this._pool.query(queryAlbum);
-    if (!resultAlbum.rows.length) {
-      throw new NotFoundError('Album tidak ditemukan');
+    try {
+      const key = `album:${id}`;
+      const cache = await this._cacheService.get(key);
+      return { cache, key };
+    } catch {
+      const queryAlbum = {
+        text: 'SELECT * FROM albums WHERE id = $1',
+        values: [id],
+      };
+      const resultAlbum = await this._pool.query(queryAlbum);
+      if (!resultAlbum.rows.length) {
+        throw new NotFoundError('Album tidak ditemukan');
+      }
+      await this._cacheService.set(`album:${id}`, resultAlbum.rows[0]);
+      return resultAlbum.rows[0];
     }
-
-    return resultAlbum.rows[0];
   }
 
   async getSongByAlbumId(albumId) {
-    const query = {
-      text: 'SELECT id, title, performer FROM songs WHERE "albumId" = $1',
-      values: [albumId],
-    };
+    try {
+      const key = `album:${albumId}`;
+      const cache = await this._cacheService.get(key);
+      return { cache, key };
+    } catch {
+      const query = {
+        text: 'SELECT id, title, performer FROM songs WHERE "albumId" = $1',
+        values: [albumId],
+      };
 
-    const result = await this._pool.query(query);
+      const result = await this._pool.query(query);
 
-    return result.rows;
+      await this._cacheService.set(`album:${albumId}`, result.rows);
+      return result.rows;
+    }
   }
 
   async editAlbumById(id, { name, year }) {
@@ -68,6 +79,8 @@ class AlbumsService {
     if (!result.rows.length) {
       throw new NotFoundError('Gagal memperbarui data albums. Id tidak ditemukan');
     }
+
+    await this._cacheService.delete(`album:${id}`);
   }
 
   async deleteAlbumById(id) {
@@ -81,6 +94,8 @@ class AlbumsService {
     if (!result.rows.length) {
       throw new NotFoundError('Gagal menghapus data albums');
     }
+
+    await this._cacheService.delete(`album:${id}`);
   }
 
   // user album likes
@@ -132,7 +147,7 @@ class AlbumsService {
   async getLikes(albumId) {
     try {
       const key = `likes:${albumId}`;
-      const cache = await this._cacheService.get(`likes:${albumId}`);
+      const cache = await this._cacheService.get(key);
       return { cache, key };
     } catch (error) {
       const query = {

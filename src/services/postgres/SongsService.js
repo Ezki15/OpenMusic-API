@@ -1,5 +1,3 @@
-/* eslint-disable linebreak-style */
-/* eslint-disable no-sparse-arrays */
 /* eslint-disable no-underscore-dangle */
 const { nanoid } = require('nanoid');
 const { Pool } = require('pg');
@@ -9,8 +7,9 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 
 class SongsService {
   // Inisiasi pg
-  constructor() {
+  constructor(cacheService) {
     this._pool = new Pool();
+    this._cacheService = cacheService;
   }
 
   // songs service =====

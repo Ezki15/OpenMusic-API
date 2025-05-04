@@ -1,5 +1,3 @@
-/* eslint-disable linebreak-style */
-/* eslint-disable no-undef */
 /* eslint-disable no-underscore-dangle */
 // eslint-disable-next-line import/no-extraneous-dependencies
 const autoBin = require('auto-bind');
@@ -32,6 +30,29 @@ class AlbumsHandler {
     const album = await this._service.getAlbumById(id);
     const song = await this._service.getSongByAlbumId(id);
 
+    if (album.key || song.key) {
+      const cacheAlbum = album.cache;
+      const cacheSongs = song.cache;
+      const response = h.response({
+        status: 'succes',
+        data: {
+          album: {
+            id: cacheAlbum.id,
+            name: cacheAlbum.name,
+            year: cacheAlbum.year,
+            coverUrl: cacheAlbum.coverUrl,
+            songs: cacheSongs.map((unit) => ({
+              id: unit.id,
+              title: unit.title,
+              performer: unit.performer,
+            })),
+          },
+        },
+      });
+      response.code(200);
+      return response;
+    }
+
     const response = h.response({
       status: 'success',
       data: {
@@ -47,7 +68,7 @@ class AlbumsHandler {
           })),
         },
       },
-    });
+    }).header('X-Data-Source', 'cache');
 
     response.code(200);
     return response;
